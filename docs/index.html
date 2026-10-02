@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>صندوقي — منصة الاشتراكات العربية</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+<style>
+:root{--primary:#6C63FF;--primary-dark:#5A52D5;--secondary:#FF6584;--accent:#43E97B;--dark:#2D3436;--light:#F8F9FA;}
+*{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;}
+body{background:var(--light);color:var(--dark);}
+.navbar{background:linear-gradient(135deg,var(--primary),var(--primary-dark));padding:1rem 0;box-shadow:0 2px 10px rgba(0,0,0,.1);}
+.navbar-brand{color:#fff!important;font-weight:700;font-size:1.5rem;}
+.navbar-brand i{color:var(--accent);}
+.nav-link{color:rgba(255,255,255,.9)!important;cursor:pointer;}
+.nav-link:hover,.nav-link.active{color:#fff!important;}
+.navbar-toggler{border-color:rgba(255,255,255,.4);}
+.navbar-toggler-icon{filter:invert(1);}
+.hero{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;padding:4rem 0;text-align:center;}
+.hero h1{font-size:2.5rem;font-weight:700;margin-bottom:1rem;}
+.hero p{font-size:1.2rem;opacity:.9;}
+.box-card{border:none;border-radius:15px;overflow:hidden;transition:transform .3s,box-shadow .3s;background:#fff;}
+.box-card:hover{transform:translateY(-5px);box-shadow:0 10px 30px rgba(0,0,0,.15);}
+.box-card img{height:200px;object-fit:cover;width:100%;}
+.box-card .card-body{padding:1.5rem;}
+.box-card .price{color:var(--primary);font-size:1.5rem;font-weight:700;}
+.box-card .category{background:var(--accent);color:#fff;padding:.2rem .8rem;border-radius:20px;font-size:.8rem;}
+.btn-primary{background:var(--primary);border:none;padding:.6rem 2rem;border-radius:25px;}
+.btn-primary:hover{background:var(--primary-dark);}
+.btn-outline-primary{border-color:var(--primary);color:var(--primary);border-radius:25px;}
+.btn-outline-primary:hover{background:var(--primary);border-color:var(--primary);}
+.footer{background:var(--dark);color:#fff;padding:2rem 0;margin-top:3rem;}
+.alert{border-radius:10px;}
+.form-control,.form-select{border-radius:10px;padding:.7rem 1rem;}
+.card{border-radius:15px;border:none;}
+.stat-card{text-align:center;padding:1.5rem;}
+.stat-card i{font-size:2rem;color:var(--primary);}
+.stat-card h3{font-size:2rem;font-weight:700;margin:.5rem 0;}
+.stat-card p{color:#666;margin:0;}
+.badge-active{background:var(--accent);}
+.badge-cancelled{background:var(--secondary);}
+.demo-banner{background:#FFF3CD;color:#664D03;text-align:center;padding:.6rem;font-size:.9rem;border-bottom:1px solid #FFECB5;}
+.feature-icon{font-size:3rem;color:var(--primary);}
+.toast-wrap{position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:9999;min-width:280px;}
+</style>
+</head>
+<body>
+
+<div class="demo-banner">
+  <i class="bi bi-info-circle"></i>
+  <strong>نسخة تجريبية ثابتة</strong> — البيانات تُحفظ في متصفحك فقط (localStorage). النسخة الكاملة بـ Flask + قاعدة بيانات في المستودع.
+</div>
+
+<nav class="navbar navbar-expand-lg">
+  <div class="container">
+    <a class="navbar-brand" href="#/"><i class="bi bi-box-seam"></i> صندوقي</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="nav">
+      <ul class="navbar-nav me-auto" id="navLinks"></ul>
+      <ul class="navbar-nav" id="navAuth"></ul>
+    </div>
+  </div>
+</nav>
+
+<div class="toast-wrap" id="toastWrap"></div>
+<div id="app"></div>
+
+<footer class="footer">
+  <div class="container text-center">
+    <p class="mb-0">&copy; 2026 صندوقي — منصة الاشتراكات العربية</p>
+    <small class="text-muted">Demo build · Flask + SQLAlchemy · Bootstrap 5</small>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+/* ============================================================
+   صندوقي — Static Demo (GitHub Pages)
+   البيانات محفوظة في localStorage. النسخة الكاملة في app.py
+   ============================================================ */
+
+const CATEGORIES = ['قهوة','عناية','كتب','حلويات','مطبخ','رياضة','أخرى'];
+
+const SEED_BOXES = [
+  {id:1,name:'صندوق القهوة المختصة',description:'أفضل أنواع القهوة المختصة من مزارع مختارة بعناية. كل شهر تشكيلة جديدة من البن المحمص طازجاً.',price:89,category:'قهوة',items:'بن مختص 250غ، طريقة تحضير، بطاقة معلومات',image:'https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=600&q=80',frequency:'monthly',is_active:true},
+  {id:2,name:'صندوق العناية بالبشرة',description:'منتجات عناية طبيعية بالبشرة من ماركات موثوقة. كريمات، سيروم، وأقنعة طبيعية.',price:149,category:'عناية',items:'سيروم فيتامين م، كريم ترطيب، قناع طبيعي',image:'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=600&q=80',frequency:'monthly',is_active:true},
+  {id:3,name:'صندوق الكتب',description:'كتابين مختارين بعناية من أفضل الكتب العربية والعالمية المترجمة.',price:59,category:'كتب',items:'كتابين، ملخص، علامة مرجعية',image:'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=600&q=80',frequency:'monthly',is_active:true},
+  {id:4,name:'صندوق الحلويات الشرقية',description:'حلويات شرقية طازجة من أفضل الحلويات. بقلاوة، كنافة، وغريبة.',price:79,category:'حلويات',items:'تشكيلة حلويات 500غ',image:'https://images.unsplash.com/photo-1551024506-0bccd828d307?w=600&q=80',frequency:'monthly',is_active:true},
+  {id:5,name:'صندوق التوابل والبهارات',description:'بهارات وتوابل فاخرة من مختلف أنحاء العالم. وصفات حصرية مع كل صندوق.',price:45,category:'مطبخ',items:'5 بهارات فاخرة، وصفات',image:'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=600&q=80',frequency:'monthly',is_active:true},
+  {id:6,name:'صندوق اللياقة',description:'مكملات غذائية وأدوات رياضية بسيطة لبداية رحلتك الرياضية.',price:199,category:'رياضة',items:'بروتين، أدوات رياضية، خطة تمارين',image:'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=600&q=80',frequency:'monthly',is_active:true}
+];
+
+const SEED_USERS = [
+  {id:1,name:'المدير',email:'admin@box.com',password:'admin123',phone:'',city:'',is_admin:true}
+];
+
+/* ---------- Storage ---------- */
+const DB = {
+  get(k, fallback){
+    try{ const v = JSON.parse(localStorage.getItem('sq_'+k)); return v === null ? fallback : v; }
+    catch(e){ return fallback; }
+  },
+  set(k,v){ localStorage.setItem('sq_'+k, JSON.stringify(v)); }
+};
+
+function initDB(){
+  if(!DB.get('boxes')) DB.set('boxes', SEED_BOXES);
+  if(!DB.get('users')) DB.set('users', SEED_USERS);
+  if(!DB.get('subs'))  DB.set('subs', []);
+  if(!DB.get('orders'))DB.set('orders', []);
+  if(DB.get('session') === undefined) DB.set('session', null);
+  if(!DB.get('seq'))   DB.set('seq', {box:7, user:2, sub:1, order:1});
+}
+
+const getBoxes   = () => DB.get('boxes', []);
+const getUsers   = () => DB.get('users', []);
+const getSubs    = () => DB.get('subs', []);
+const getOrders  = () => DB.get('orders', []);
+const setBoxes   = v => DB.set('boxes', v);
+const setUsers   = v => DB.set('users', v);
+const setSubs    = v => DB.set('subs', v);
+const setOrders  = v => DB.set('orders', v);
+
+function nextId(kind){
+  const s = DB.get('seq', {box:7,user:2,sub:1,order:1});
+  const id = s[kind] || 1;
+  s[kind] = id + 1;
+  DB.set('seq', s);
+  return id;
+}
+
+/* ---------- Auth ---------- */
+function currentUser(){
+  const s = DB.get('session', null);
+  if(!s) return null;
+  return getUsers().find(u => u.id === s.userId) || null;
+}
+function login(email, password){
+  const u = getUsers().find(x => x.email.toLowerCase() === String(email).toLowerCase() && x.password === password);
+  if(!u) return null;
+  DB.set('session', {userId:u.id});
+  return u;
+}
+function logout(){ DB.set('session', null); }
+
+/* ---------- Helpers ---------- */
+function esc(s){
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function money(n){ return Number(n).toLocaleString('ar-EG',{maximumFractionDigits:2}) + ' ر.س'; }
+function fmtDate(d){
+  try{ return new Date(d).toLocaleDateString('ar-EG',{year:'numeric',month:'long',day:'numeric'}); }
+  catch(e){ return '—'; }
+}
+function addDays(days){ const d = new Date(); d.setDate(d.getDate()+days); return d.toISOString(); }
+function toast(msg, type){
+  const colors = {success:'success', danger:'danger', warning:'warning', info:'info'};
+  const el = document.createElement('div');
+  el.className = 'alert alert-' + (colors[type]||'info') + ' alert-dismissible fade show shadow';
+  el.innerHTML = esc(msg) + '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+  document.getElementById('toastWrap').appendChild(el);
+  setTimeout(()=>{ try{ el.remove(); }catch(e){} }, 4000);
+}
+function go(hash){ location.hash = hash; }
+
+/* ---------- Navbar ---------- */
+function renderNav(){
+  const u = currentUser();
+  const h = location.hash || '#/';
+  const active = p => (p === '#/' ? (h === '#/' || h === '') : h.startsWith(p)) ? 'active' : '';
+
+  let links = '<li class="nav-item"><a class="nav-link ' + active('#/') + '" href="#/">الرئيسية</a></li>';
+  if(u){
+    links += '<li class="nav-item"><a class="nav-link ' + active('#/my-subs') + '" href="#/my-subs">اشتراكاتي</a></li>';
+  }
+  if(u && u.is_admin){
+    links += '<li class="nav-item"><a class="nav-link ' + active('#/admin') + '" href="#/admin">لوحة التحكم</a></li>';
+  }
+  document.getElementById('navLinks').innerHTML = links;
+
+  let auth = '';
+  if(u){
+    auth += '<li class="nav-item"><span class="nav-link disabled" style="color:rgba(255,255,255,.7)!important">مرحباً ' + esc(u.name) + '</span></li>';
+    auth += '<li class="nav-item"><a class="nav-link" onclick="doLogout()">خروج</a></li>';
+  } else {
+    auth += '<li class="nav-item"><a class="nav-link ' + active('#/login') + '" href="#/login">دخول</a></li>';
+    auth += '<li class="nav-item"><a class="nav-link ' + active('#/register') + '" href="#/register">حساب جديد</a></li>';
+  }
+  document.getElementById('navAuth').innerHTML = auth;
+}
+
+/* ---------- Views ---------- */
+function viewHome(){
+  const boxes = getBoxes().filter(b => b.is_active);
+  return `
+  <section class="hero">
+    <div class="container">
+      <h1><i class="bi bi-box-seam"></i> صندوقي</h1>
+      <p>اشتراكات شهرية ممتعة تصلك لباب بيتك — قهوة، عناية، كتب، حلويات وأكثر</p>
+      <a href="#boxes" class="btn btn-light btn-lg mt-3">تصفح الصناديق</a>
+    </div>
+  </section>
+  <section class="container my-5" id="boxes">
+    <h2 class="text-center mb-4">صناديقنا</h2>
+    <div class="row g-4">
+      ${boxes.map(b => `
+        <div class="col-md-4">
+          <div class="card box-card h-100">
+            <img src="${esc(b.image)}" alt="${esc(b.name)}" loading="lazy">
+            <div class="card-body d-flex flex-column">
+              <span class="category align-self-start mb-2">${esc(b.category)}</span>
+              <h5 class="card-title">${esc(b.name)}</h5>
+              <p class="card-text text-muted flex-grow-1">${esc(b.description.slice(0,80))}...</p>
+              <div class="d-flex justify-content-between align-items-center mt-3">
+                <span class="price">${money(b.price)}</span>
+                <a href="#/box/${b.id}" class="btn btn-primary">التفاصيل</a>
+              </div>
+            </div>
+          </div>
+        </div>`).join('')}
+    </div>
+  </section>
+  <section class="container my-5">
+    <div class="row text-center">
+      <div class="col-md-4 mb-3">
+        <i class="bi bi-truck feature-icon"></i><h4>توصيل سريع</h4>
+        <p class="text-muted">يصلك صندوقك خلال 3-5 أيام عمل</p>
+      </div>
+      <div class="col-md-4 mb-3">
+        <i class="bi bi-arrow-repeat feature-icon"></i><h4>إلغاء في أي وقت</h4>
+        <p class="text-muted">بدون التزامات أو رسوم خفية</p>
+      </div>
+      <div class="col-md-4 mb-3">
+        <i class="bi bi-star feature-icon"></i><h4>جودة مضمونة</h4>
+        <p class="text-muted">منتجات مختارة بعناية من أفضل الموردين</p>
+      </div>
+    </div>
+  </section>`;
+}
+
+function viewBox(id){
+  const b = getBoxes().find(x => x.id === Number(id));
+  if(!b) return `<div class="container my-5"><div class="alert alert-danger">الصندوق غير موجود</div><a href="#/" class="btn btn-primary">عودة</a></div>`;
+  const u = currentUser();
+  const subscribed = u && getSubs().some(s => s.user_id === u.id && s.box_id === b.id && s.status === 'active');
+
+  return `
+  <div class="container my-5">
+    <div class="row g-4">
+      <div class="col-md-6">
+        <img src="${esc(b.image)}" class="img-fluid rounded shadow-sm" alt="${esc(b.name)}">
+      </div>
+      <div class="col-md-6">
+        <span class="badge badge-active mb-2">${esc(b.category)}</span>
+        <h2>${esc(b.name)}</h2>
+        <p class="text-muted">${esc(b.description)}</p>
+        <hr>
+        <h5>محتويات الصندوق:</h5>
+        <p>${esc(b.items)}</p>
+        <hr>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h3 class="text-primary mb-0">${money(b.price)}</h3>
+          <span class="text-muted">/ شهرياً</span>
+        </div>
+        ${!u ? `
+          <a href="#/login" class="btn btn-primary btn-lg w-100">سجل دخولك للاشتراك</a>
+        ` : subscribed ? `
+          <div class="alert alert-success mb-0"><i class="bi bi-check-circle"></i> أنت مشترك بالفعل في هذا الصندوق</div>
+          <a href="#/my-subs" class="btn btn-outline-primary w-100 mt-3">عرض اشتراكاتي</a>
+        ` : `
+          <form onsubmit="doSubscribe(event, ${b.id})">
+            <div class="mb-3">
+              <label class="form-label">عنوان التوصيل</label>
+              <textarea name="address" class="form-control" rows="3" placeholder="المدينة، الحي، الشارع، رقم المبنى" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary btn-lg w-100">
+              <i class="bi bi-bag-check"></i> اشترك الآن
+            </button>
+          </form>
+        `}
+      </div>
+    </div>
+  </div>`;
+}
+
+function viewLogin(){
+  return `
+  <div class="container my-5" style="max-width:450px">
+    <div class="card shadow">
+      <div class="card-body p-4">
+        <h3 class="text-center mb-4"><i class="bi bi-box-seam"></i> تسجيل الدخول</h3>
+        <form onsubmit="doLogin(event)">
+          <div class="mb-3">
+            <label class="form-label">البريد الإلكتروني</label>
+            <input type="email" name="email" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">كلمة المرور</label>
+            <input type="password" name="password" class="form-control" required>
+          </div>
+          <button type="submit" class="btn btn-primary w-100">دخول</button>
+        </form>
+        <hr>
+        <p class="text-center mb-0">ليس لديك حساب؟ <a href="#/register">سجل الآن</a></p>
+        <div class="alert alert-info mt-3 mb-0 small">
+          <strong>حساب المدير التجريبي:</strong><br>
+          البريد: <code>admin@box.com</code><br>
+          كلمة المرور: <code>admin123</code>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function viewRegister(){
+  return `
+  <div class="container my-5" style="max-width:450px">
+    <div class="card shadow">
+      <div class="card-body p-4">
+        <h3 class="text-center mb-4"><i class="bi bi-box-seam"></i> حساب جديد</h3>
+        <form onsubmit="doRegister(event)">
+          <div class="mb-3"><label class="form-label">الاسم الكامل</label>
+            <input type="text" name="name" class="form-control" required></div>
+          <div class="mb-3"><label class="form-label">البريد الإلكتروني</label>
+            <input type="email" name="email" class="form-control" required></div>
+          <div class="mb-3"><label class="form-label">كلمة المرور</label>
+            <input type="password" name="password" class="form-control" required minlength="4"></div>
+          <div class="mb-3"><label class="form-label">رقم الجوال</label>
+            <input type="tel" name="phone" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">المدينة</label>
+            <input type="text" name="city" class="form-control"></div>
+          <button type="submit" class="btn btn-primary w-100">إنشاء حساب</button>
+        </form>
+        <hr>
+        <p class="text-center mb-0">لديك حساب؟ <a href="#/login">سجل دخولك</a></p>
+      </div>
+    </div>
+  </div>`;
+}
+
+function viewMySubs(){
+  const u = currentUser();
+  if(!u) return viewLogin();
+  const subs = getSubs().filter(s => s.user_id === u.id);
+
+  if(!subs.length){
+    return `
+    <div class="container my-5 text-center py-5">
+      <i class="bi bi-inbox" style="font-size:4rem;color:#ccc"></i>
+      <h4 class="text-muted mt-3">لا توجد اشتراكات بعد</h4>
+      <a href="#/" class="btn btn-primary mt-3">تصفح الصناديق</a>
+    </div>`;
+  }
+
+  return `
+  <div class="container my-5">
+    <h2 class="mb-4"><i class="bi bi-bag"></i> اشتراكاتي</h2>
+    <div class="row g-4">
+      ${subs.map(s => {
+        const b = getBoxes().find(x => x.id === s.box_id) || {name:'—',price:0,category:'—'};
+        return `
+        <div class="col-md-6">
+          <div class="card shadow-sm h-100">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <h5 class="card-title mb-1">${esc(b.name)}</h5>
+                  <p class="text-muted mb-0">${esc(b.category)}</p>
+                </div>
+                <span class="badge ${s.status === 'active' ? 'badge-active' : 'badge-cancelled'}">
+                  ${s.status === 'active' ? 'نشط' : 'ملغي'}
+                </span>
+              </div>
+              <hr>
+              <p class="mb-1"><strong>السعر:</strong> ${money(b.price)} / شهرياً</p>
+              <p class="mb-1"><strong>التوصيل القادم:</strong> ${fmtDate(s.next_delivery)}</p>
+              <p class="mb-0"><strong>العنوان:</strong> ${esc(s.address)}</p>
+              ${s.status === 'active' ? `
+                <button class="btn btn-outline-danger btn-sm mt-3" onclick="doCancelSub(${s.id})">إلغاء الاشتراك</button>
+              ` : ''}
+            </div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
+}
+
+function viewAdmin(){
+  const u = currentUser();
+  if(!u || !u.is_admin) return `<div class="container my-5"><div class="alert alert-danger">ليس لديك صلاحية للوصول لهذه الصفحة</div><a href="#/" class="btn btn-primary">عودة للرئيسية</a></div>`;
+
+  const users = getUsers(), boxes = getBoxes();
+  const subs = getSubs().filter(s => s.status === 'active');
+  const orders = getOrders();
+  const revenue = orders.filter(o => o.status === 'confirmed').reduce((a,o) => a + Number(o.amount), 0);
+  const recent = orders.slice().sort((a,b) => new Date(b.created_at) - new Date(a.created_at)).slice(0,10);
+
+  return `
+  <div class="container my-4">
+    <h2 class="mb-4"><i class="bi bi-speedometer2"></i> لوحة التحكم</h2>
+    <div class="row g-4 mb-4">
+      <div class="col-md-3"><div class="card stat-card"><i class="bi bi-people"></i><h3>${users.length}</h3><p>المستخدمين</p></div></div>
+      <div class="col-md-3"><div class="card stat-card"><i class="bi bi-box-seam"></i><h3>${boxes.length}</h3><p>الصناديق</p></div></div>
+      <div class="col-md-3"><div class="card stat-card"><i class="bi bi-bag-check"></i><h3>${subs.length}</h3><p>اشتراكات نشطة</p></div></div>
+      <div class="col-md-3"><div class="card stat-card"><i class="bi bi-cash-stack"></i><h3>${Number(revenue).toLocaleString('ar-EG',{maximumFractionDigits:0})}</h3><p>الإيرادات (ر.س)</p></div></div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">آخر الطلبات</h5>
+        <a href="#/admin/boxes" class="btn btn-sm btn-outline-primary">إدارة الصناديق</a>
+      </div>
+      <div class="card-body">
+        ${recent.length ? `
+        <div class="table-responsive">
+          <table class="table align-middle">
+            <thead><tr><th>#</th><th>العميل</th><th>الصندوق</th><th>المبلغ</th><th>الحالة</th><th>التاريخ</th></tr></thead>
+            <tbody>
+              ${recent.map(o => {
+                const b = boxes.find(x => x.id === o.box_id) || {name:'—'};
+                const c = users.find(x => x.id === o.user_id) || {name:'—'};
+                return `<tr>
+                  <td>${o.id}</td>
+                  <td>${esc(c.name)}</td>
+                  <td>${esc(b.name)}</td>
+                  <td>${money(o.amount)}</td>
+                  <td><span class="badge badge-active">مؤكد</span></td>
+                  <td>${fmtDate(o.created_at)}</td>
+                </tr>`;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>` : '<p class="text-muted mb-0">لا توجد طلبات بعد</p>'}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h5 class="mb-0">جميع الاشتراكات</h5></div>
+      <div class="card-body">
+        ${getSubs().length ? `
+        <div class="table-responsive">
+          <table class="table align-middle">
+            <thead><tr><th>#</th><th>المستخدم</th><th>الصندوق</th><th>الحالة</th><th>التوصيل القادم</th></tr></thead>
+            <tbody>
+              ${getSubs().map(s => {
+                const b = boxes.find(x => x.id === s.box_id) || {name:'—'};
+                const c = users.find(x => x.id === s.user_id) || {name:'—'};
+                return `<tr>
+                  <td>${s.id}</td>
+                  <td>${esc(c.name)}</td>
+                  <td>${esc(b.name)}</td>
+                  <td><span class="badge ${s.status === 'active' ? 'badge-active' : 'badge-cancelled'}">${s.status === 'active' ? 'نشط' : 'ملغي'}</span></td>
+                  <td>${fmtDate(s.next_delivery)}</td>
+                </tr>`;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>` : '<p class="text-muted mb-0">لا توجد اشتراكات بعد</p>'}
+      </div>
+    </div>
+  </div>`;
+}
+
+function viewAdminBoxes(){
+  const u = currentUser();
+  if(!u || !u.is_admin) return `<div class="container my-5"><div class="alert alert-danger">ليس لديك صلاحية</div></div>`;
+  const boxes = getBoxes();
+
+  return `
+  <div class="container my-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="mb-0"><i class="bi bi-box-seam"></i> إدارة الصناديق</h2>
+      <a href="#/admin/box/new" class="btn btn-primary"><i class="bi bi-plus"></i> إضافة صندوق</a>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table align-middle">
+            <thead><tr><th>#</th><th>الاسم</th><th>الفئة</th><th>السعر</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+            <tbody>
+              ${boxes.map(b => `<tr>
+                <td>${b.id}</td>
+                <td>${esc(b.name)}</td>
+                <td>${esc(b.category)}</td>
+                <td>${money(b.price)}</td>
+                <td><span class="badge ${b.is_active ? 'badge-active' : 'bg-secondary'}">${b.is_active ? 'نشط' : 'غير نشط'}</span></td>
+                <td class="text-nowrap">
+                  <a href="#/admin/box/${b.id}/edit" class="btn btn-sm btn-outline-primary">تعديل</a>
+                  <button class="btn btn-sm btn-outline-danger" onclick="doDeleteBox(${b.id})">حذف</button>
+                </td>
+              </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function viewBoxForm(id){
+  const u = currentUser();
+  if(!u || !u.is_admin) return `<div class="container my-5"><div class="alert alert-danger">ليس لديك صلاحية</div></div>`;
+  const isNew = !id;
+  const b = isNew
+    ? {name:'',description:'',price:'',category:'قهوة',items:'',image:'',frequency:'monthly'}
+    : getBoxes().find(x => x.id === Number(id));
+  if(!b) return `<div class="container my-5"><div class="alert alert-danger">الصندوق غير موجود</div></div>`;
+
+  return `
+  <div class="container my-4" style="max-width:600px">
+    <h2 class="mb-4"><i class="bi ${isNew ? 'bi-plus-circle' : 'bi-pencil'}"></i> ${isNew ? 'إضافة صندوق جديد' : 'تعديل الصندوق'}</h2>
+    <div class="card"><div class="card-body">
+      <form onsubmit="doSaveBox(event, ${isNew ? 'null' : b.id})">
+        <div class="mb-3"><label class="form-label">اسم الصندوق</label>
+          <input type="text" name="name" class="form-control" value="${esc(b.name)}" required></div>
+        <div class="mb-3"><label class="form-label">الوصف</label>
+          <textarea name="description" class="form-control" rows="3" required>${esc(b.description)}</textarea></div>
+        <div class="mb-3"><label class="form-label">السعر (ر.س)</label>
+          <input type="number" name="price" class="form-control" step="0.01" min="0" value="${esc(b.price)}" required></div>
+        <div class="mb-3"><label class="form-label">الفئة</label>
+          <select name="category" class="form-select" required>
+            ${CATEGORIES.map(c => `<option value="${c}" ${b.category === c ? 'selected' : ''}>${c}</option>`).join('')}
+          </select></div>
+        <div class="mb-3"><label class="form-label">محتويات الصندوق</label>
+          <textarea name="items" class="form-control" rows="2">${esc(b.items)}</textarea></div>
+        <div class="mb-3"><label class="form-label">رابط الصورة</label>
+          <input type="url" name="image" class="form-control" value="${esc(b.image)}" placeholder="https://..."></div>
+        <div class="mb-3"><label class="form-label">التكرار</label>
+          <select name="frequency" class="form-select">
+            <option value="monthly" ${b.frequency === 'monthly' ? 'selected' : ''}>شهري</option>
+            <option value="weekly" ${b.frequency === 'weekly' ? 'selected' : ''}>أسبوعي</option>
+            <option value="quarterly" ${b.frequency === 'quarterly' ? 'selected' : ''}>ربع سنوي</option>
+          </select></div>
+        <button type="submit" class="btn btn-primary w-100">${isNew ? 'إضافة الصندوق' : 'حفظ التعديلات'}</button>
+      </form>
+    </div></div>
+  </div>`;
+}
+
+function viewNotFound(){
+  return `<div class="container my-5 text-center py-5">
+    <h1 class="display-1 text-muted">404</h1>
+    <p class="text-muted">الصفحة غير موجودة</p>
+    <a href="#/" class="btn btn-primary">عودة للرئيسية</a>
+  </div>`;
+}
+
+/* ---------- Router ---------- */
+function route(){
+  const hash = location.hash || '#/';
+  const parts = hash.replace(/^#\//, '').split('/').filter(Boolean);
+  let html;
+
+  if(parts.length === 0) html = viewHome();
+  else if(parts[0] === 'box' && parts[1]) html = viewBox(parts[1]);
+  else if(parts[0] === 'login') html = viewLogin();
+  else if(parts[0] === 'register') html = viewRegister();
+  else if(parts[0] === 'my-subs') html = viewMySubs();
+  else if(parts[0] === 'admin' && parts.length === 1) html = viewAdmin();
+  else if(parts[0] === 'admin' && parts[1] === 'boxes') html = viewAdminBoxes();
+  else if(parts[0] === 'admin' && parts[1] === 'box' && parts[2] === 'new') html = viewBoxForm(null);
+  else if(parts[0] === 'admin' && parts[1] === 'box' && parts[3] === 'edit') html = viewBoxForm(parts[2]);
+  else html = viewNotFound();
+
+  document.getElementById('app').innerHTML = html;
+  renderNav();
+  window.scrollTo(0,0);
+}
+
+/* ---------- Actions ---------- */
+function doLogin(e){
+  e.preventDefault();
+  const f = e.target;
+  const u = login(f.email.value.trim(), f.password.value);
+  if(!u){ toast('بيانات الدخول غير صحيحة', 'danger'); return; }
+  toast('أهلاً ' + u.name + '!', 'success');
+  go(u.is_admin ? '#/admin' : '#/');
+}
+
+function doRegister(e){
+  e.preventDefault();
+  const f = e.target;
+  const email = f.email.value.trim();
+  if(getUsers().some(u => u.email.toLowerCase() === email.toLowerCase())){
+    toast('البريد الإلكتروني مسجل مسبقاً', 'danger'); return;
+  }
+  const user = {
+    id: nextId('user'),
+    name: f.name.value.trim(),
+    email: email,
+    password: f.password.value,
+    phone: f.phone.value.trim(),
+    city: f.city.value.trim(),
+    is_admin: false
+  };
+  const users = getUsers(); users.push(user); setUsers(users);
+  toast('تم إنشاء حسابك بنجاح! سجل دخولك', 'success');
+  go('#/login');
+}
+
+function doLogout(){
+  logout();
+  toast('تم تسجيل الخروج', 'info');
+  go('#/');
+}
+
+function doSubscribe(e, boxId){
+  e.preventDefault();
+  const u = currentUser();
+  if(!u){ toast('سجل دخولك أولاً', 'warning'); go('#/login'); return; }
+  const address = e.target.address.value.trim();
+  if(!address){ toast('أدخل عنوان التوصيل', 'danger'); return; }
+
+  const subs = getSubs();
+  if(subs.some(s => s.user_id === u.id && s.box_id === boxId && s.status === 'active')){
+    toast('أنت مشترك بالفعل في هذا الصندوق', 'warning'); go('#/my-subs'); return;
+  }
+
+  const box = getBoxes().find(b => b.id === boxId);
+  subs.push({
+    id: nextId('sub'),
+    user_id: u.id,
+    box_id: boxId,
+    status: 'active',
+    address: address,
+    start_date: new Date().toISOString(),
+    next_delivery: addDays(30),
+    created_at: new Date().toISOString()
+  });
+  setSubs(subs);
+
+  const orders = getOrders();
+  orders.push({
+    id: nextId('order'),
+    user_id: u.id,
+    box_id: boxId,
+    amount: box.price,
+    status: 'confirmed',
+    payment_method: 'cash_on_delivery',
+    created_at: new Date().toISOString()
+  });
+  setOrders(orders);
+
+  toast('تم الاشتراك في ' + box.name + ' بنجاح! 🎉', 'success');
+  go('#/my-subs');
+}
+
+function doCancelSub(subId){
+  if(!confirm('متأكد من إلغاء الاشتراك؟')) return;
+  const subs = getSubs();
+  const s = subs.find(x => x.id === subId);
+  if(!s) return;
+  s.status = 'cancelled';
+  setSubs(subs);
+  toast('تم إلغاء الاشتراك', 'info');
+  route();
+}
+
+function doSaveBox(e, boxId){
+  e.preventDefault();
+  const f = e.target;
+  const boxes = getBoxes();
+  const data = {
+    name: f.name.value.trim(),
+    description: f.description.value.trim(),
+    price: parseFloat(f.price.value),
+    category: f.category.value,
+    items: f.items.value.trim(),
+    image: f.image.value.trim() || 'https://via.placeholder.com/600x400?text=Box',
+    frequency: f.frequency.value
+  };
+
+  if(boxId === null){
+    data.id = nextId('box');
+    data.is_active = true;
+    boxes.push(data);
+    toast('تمت إضافة الصندوق بنجاح', 'success');
+  } else {
+    const b = boxes.find(x => x.id === Number(boxId));
+    if(!b){ toast('الصندوق غير موجود', 'danger'); return; }
+    Object.assign(b, data);
+    toast('تم تحديث الصندوق', 'success');
+  }
+  setBoxes(boxes);
+  go('#/admin/boxes');
+}
+
+function doDeleteBox(boxId){
+  if(!confirm('متأكد من حذف هذا الصندوق؟')) return;
+  setBoxes(getBoxes().filter(b => b.id !== Number(boxId)));
+  toast('تم حذف الصندوق', 'info');
+  route();
+}
+
+/* ---------- Boot ---------- */
+initDB();
+window.addEventListener('hashchange', route);
+route();
+</script>
+</body>
+</html>
