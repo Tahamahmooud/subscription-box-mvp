@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="hero">
+    <div class="container">
+        <h1><i class="bi bi-box-seam"></i> صندوقي</h1>
+        <p>اشتراكات شهرية ممتعة تصلك لباب بيتك — قهوة، عناية، كتب، حلويات وأكثر</p>
+        <a href="#boxes" class="btn btn-light btn-lg mt-3">تصفح الصناديق</a>
+    </div>
+</section>
+
+<section class="container my-5" id="boxes">
+    <h2 class="text-center mb-4">صناديقنا</h2>
+    <div class="row g-4">
+        {% for box in boxes %}
+        <div class="col-md-4">
+            <div class="card box-card h-100">
+                <img src="{{ box.image or 'https://via.placeholder.com/400x200' }}" class="card-img-top" alt="{{ box.name }}">
+                <div class="card-body d-flex flex-column">
+                    <span class="category align-self-start mb-2">{{ box.category }}</span>
+                    <h5 class="card-title">{{ box.name }}</h5>
+                    <p class="card-text text-muted flex-grow-1">{{ box.description[:80] }}...</p>
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <span class="price">{{ box.price }} ر.س</span>
+                        <a href="{{ url_for('box_detail', box_id=box.id) }}" class="btn btn-primary">التفاصيل</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="container my-5">
+    <div class="row text-center">
+        <div class="col-md-4 mb-3">
+            <i class="bi bi-truck" style="font-size: 3rem; color: var(--primary);"></i>
+            <h4>توصيل سريع</h4>
+            <p class="text-muted">يصلك صندوقك خلال 3-5 أيام عمل</p>
+        </div>
+        <div class="col-md-4 mb-3">
+            <i class="bi bi-arrow-repeat" style="font-size: 3rem; color: var(--primary);"></i>
+            <h4>إلغاء في أي وقت</h4>
+            <p class="text-muted">بدون التزامات أو رسوم خفية</p>
+        </div>
+        <div class="col-md-4 mb-3">
+            <i class="bi bi-star" style="font-size: 3rem; color: var(--primary);"></i>
+            <h4>جودة مضمونة</h4>
+            <p class="text-muted">منتجات مختارة بعناية من أفضل الموردين</p>
+        </div>
+    </div>
+</section>
+{% endblock %}

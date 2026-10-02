@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}لوحة التحكم - صندوقي{% endblock %}
+{% block content %}
+<div class="container my-4">
+    <h2 class="mb-4"><i class="bi bi-speedometer2"></i> لوحة التحكم</h2>
+    
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card stat-card">
+                <i class="bi bi-people"></i>
+                <h3>{{ total_users }}</h3>
+                <p>المستخدمين</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card">
+                <i class="bi bi-box-seam"></i>
+                <h3>{{ total_boxes }}</h3>
+                <p>الصناديق</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card">
+                <i class="bi bi-bag-check"></i>
+                <h3>{{ total_subs }}</h3>
+                <p>اشتراكات نشطة</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card">
+                <i class="bi bi-cash-stack"></i>
+                <h3>{{ "%.0f"|format(total_revenue) }}</h3>
+                <p>الإيرادات (ر.س)</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">آخر الطلبات</h5>
+        </div>
+        <div class="card-body">
+            {% if recent_orders %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>الصندوق</th>
+                            <th>المبلغ</th>
+                            <th>الحالة</th>
+                            <th>التاريخ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in recent_orders %}
+                        <tr>
+                            <td>{{ order.id }}</td>
+                            <td>{{ order.box.name }}</td>
+                            <td>{{ order.amount }} ر.س</td>
+                            <td><span class="badge bg-success">مؤكد</span></td>
+                            <td>{{ order.created_at.strftime('%Y-%m-%d') }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted">لا توجد طلبات بعد</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

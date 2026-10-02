@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}إدارة الصناديق - صندوقي{% endblock %}
+{% block content %}
+<div class="container my-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-box-seam"></i> إدارة الصناديق</h2>
+        <a href="{{ url_for('add_box') }}" class="btn btn-primary"><i class="bi bi-plus"></i> إضافة صندوق</a>
+    </div>
+    
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>الاسم</th>
+                            <th>الفئة</th>
+                            <th>السعر</th>
+                            <th>الحالة</th>
+                            <th>إجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for box in boxes %}
+                        <tr>
+                            <td>{{ box.id }}</td>
+                            <td>{{ box.name }}</td>
+                            <td>{{ box.category }}</td>
+                            <td>{{ box.price }} ر.س</td>
+                            <td>
+                                <span class="badge {{ 'bg-success' if box.is_active else 'bg-secondary' }}">
+                                    {{ 'نشط' if box.is_active else 'غير نشط' }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('edit_box', box_id=box.id) }}" class="btn btn-sm btn-outline-primary">تعديل</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

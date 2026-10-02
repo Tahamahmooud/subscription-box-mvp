@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}إضافة صندوق - صندوقي{% endblock %}
+{% block content %}
+<div class="container my-4" style="max-width: 600px;">
+    <h2 class="mb-4"><i class="bi bi-plus-circle"></i> إضافة صندوق جديد</h2>
+    <div class="card">
+        <div class="card-body">
+            <form method="POST">
+                <div class="mb-3">
+                    <label class="form-label">اسم الصندوق</label>
+                    <input type="text" name="name" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">الوصف</label>
+                    <textarea name="description" class="form-control" rows="3" required></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">السعر (ر.س)</label>
+                    <input type="number" name="price" class="form-control" step="0.01" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">الفئة</label>
+                    <select name="category" class="form-select" required>
+                        <option value="قهوة">قهوة</option>
+                        <option value="عناية">عناية</option>
+                        <option value="كتب">كتب</option>
+                        <option value="حلويات">حلويات</option>
+                        <option value="مطبخ">مطبخ</option>
+                        <option value="رياضة">رياضة</option>
+                        <option value="أخرى">أخرى</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">محتويات الصندوق</label>
+                    <textarea name="items" class="form-control" rows="2" placeholder="مثال: بن مختص 250غ، طريقة تحضير"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">رابط الصورة</label>
+                    <input type="url" name="image" class="form-control" placeholder="https://...">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">التكرار</label>
+                    <select name="frequency" class="form-select">
+                        <option value="monthly">شهري</option>
+                        <option value="weekly">أسبوعي</option>
+                        <option value="quarterly">ربع سنوي</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">إضافة الصندوق</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}تعديل صندوق - صندوقي{% endblock %}
+{% block content %}
+<div class="container my-4" style="max-width: 600px;">
+    <h2 class="mb-4"><i class="bi bi-pencil"></i> تعديل الصندوق</h2>
+    <div class="card">
+        <div class="card-body">
+            <form method="POST">
+                <div class="mb-3">
+                    <label class="form-label">اسم الصندوق</label>
+                    <input type="text" name="name" class="form-control" value="{{ box.name }}" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">الوصف</label>
+                    <textarea name="description" class="form-control" rows="3" required>{{ box.description }}</textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">السعر (ر.س)</label>
+                    <input type="number" name="price" class="form-control" step="0.01" value="{{ box.price }}" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">الفئة</label>
+                    <select name="category" class="form-select" required>
+                        {% for cat in ['قهوة', 'عناية', 'كتب', 'حلويات', 'مطبخ', 'رياضة', 'أخرى'] %}
+                        <option value="{{ cat }}" {{ 'selected' if box.category == cat }}>{{ cat }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">محتويات الصندوق</label>
+                    <textarea name="items" class="form-control" rows="2">{{ box.items }}</textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">رابط الصورة</label>
+                    <input type="url" name="image" class="form-control" value="{{ box.image }}">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">التكرار</label>
+                    <select name="frequency" class="form-select">
+                        <option value="monthly" {{ 'selected' if box.frequency == 'monthly' }}>شهري</option>
+                        <option value="weekly" {{ 'selected' if box.frequency == 'weekly' }}>أسبوعي</option>
+                        <option value="quarterly" {{ 'selected' if box.frequency == 'quarterly' }}>ربع سنوي</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">حفظ التعديلات</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

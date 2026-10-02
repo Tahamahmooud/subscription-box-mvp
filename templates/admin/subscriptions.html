@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}الاشتراكات - صندوقي{% endblock %}
+{% block content %}
+<div class="container my-4">
+    <h2 class="mb-4"><i class="bi bi-bag-check"></i> جميع الاشتراكات</h2>
+    <div class="card">
+        <div class="card-body">
+            {% if subscriptions %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>المستخدم</th>
+                            <th>الصندوق</th>
+                            <th>الحالة</th>
+                            <th>التوصيل القادم</th>
+                            <th>العنوان</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sub in subscriptions %}
+                        <tr>
+                            <td>{{ sub.id }}</td>
+                            <td>{{ sub.user.name }}</td>
+                            <td>{{ sub.box.name }}</td>
+                            <td>
+                                <span class="badge {{ 'bg-success' if sub.status == 'active' else 'bg-danger' }}">
+                                    {{ 'نشط' if sub.status == 'active' else 'ملغي' }}
+                                </span>
+                            </td>
+                            <td>{{ sub.next_delivery.strftime('%Y-%m-%d') if sub.next_delivery else '—' }}</td>
+                            <td>{{ sub.address[:30] }}{% if sub.address|length > 30 %}...{% endif %}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted">لا توجد اشتراكات بعد</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
